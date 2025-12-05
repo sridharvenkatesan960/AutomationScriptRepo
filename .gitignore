@@ -1,1 +1,48 @@
+# Large installer files
 Naukri/google-chrome-stable_current_amd64.deb
+*.deb
+
+# Eclipse IDE files
+.classpath
+.project
+.settings/
+
+# Maven build output
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Java compiled classes
+*.class
+bin/
+
+# Log files
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.idea/
+*.iml
+*.iws
+.vscode/
+.claude/
+
+# Test reports and output
+test-output/
+*.html
+*.json
+
+# Credentials and sensitive data
+credentials.properties
+config.properties
+*.env
