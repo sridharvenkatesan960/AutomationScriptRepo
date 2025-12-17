@@ -37,9 +37,9 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                echo 'Running unit tests...'
+                echo 'Skipping unit tests - using Cucumber integration tests instead'
                 dir("${PROJECT_DIR}") {
-                    bat 'mvn test -Dtest=TestNG.xml || exit 0'
+                    bat 'echo Unit test stage skipped'
                 }
             }
         }
