@@ -62,15 +62,8 @@ pipeline {
             steps {
                 echo 'Generating test reports...'
                 dir("${PROJECT_DIR}") {
-                    // Publish Cucumber reports
-                    cucumber buildStatus: 'UNSTABLE',
-                            reportTitle: 'Cucumber Test Report',
-                            fileIncludePattern: '**/cucumber.json',
-                            trendsLimit: 10,
-                            classifications: [
-                                [key: 'Browser', value: "${params.BROWSER}"],
-                                [key: 'Environment', value: "${params.ENVIRONMENT}"]
-                            ]
+                    // Archive test reports - Cucumber plugin not required
+                    echo 'Test reports will be archived in next stage'
                 }
             }
         }
