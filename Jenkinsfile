@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven-3.9.0' // Configure this name in Jenkins Global Tool Configuration
-        jdk 'JDK-17' // Configure this name in Jenkins Global Tool Configuration
+        maven 'Maven-3.9' // Configure this name in Jenkins Global Tool Configuration
+        jdk 'Java-25' // Configure this name in Jenkins Global Tool Configuration
     }
 
     parameters {
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 echo 'Checking out code from repository...'
                 checkout scm
-                sh 'git log -1 --pretty=format:"%h - %an, %ar : %s"'
+                bat 'git log -1 --pretty=format:"%%h - %%an, %%ar : %%s"'
             }
         }
 
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 echo 'Building the project...'
                 dir("${PROJECT_DIR}") {
-                    sh 'mvn clean compile'
+                    bat 'mvn clean compile'
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
             steps {
                 echo 'Running unit tests...'
                 dir("${PROJECT_DIR}") {
-                    sh 'mvn test -Dtest=TestNG.xml || true'
+                    bat 'mvn test -Dtest=TestNG.xml || exit 0'
                 }
             }
         }
@@ -50,12 +50,8 @@ pipeline {
                 dir("${PROJECT_DIR}") {
                     script {
                         // Run Cucumber tests with specified tags
-                        sh """
-                            mvn verify \
-                            -Dcucumber.filter.tags='${params.TEST_TAGS}' \
-                            -Dbrowser=${params.BROWSER} \
-                            -Denvironment=${params.ENVIRONMENT} \
-                            || true
+                        bat """
+                            mvn verify -Dcucumber.filter.tags="${params.TEST_TAGS}" -Dbrowser=${params.BROWSER} -Denvironment=${params.ENVIRONMENT} || exit 0
                         """
                     }
                 }
