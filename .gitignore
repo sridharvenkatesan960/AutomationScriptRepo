@@ -24,6 +24,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+bin/
 
 # Eclipse
 .classpath
@@ -39,6 +40,9 @@ buildNumber.properties
 # VS Code
 .vscode/
 
+# Claude
+.claude/
+
 # OS Files
 .DS_Store
 Thumbs.db
@@ -47,6 +51,8 @@ Thumbs.db
 test-output/
 reports/
 screenshots/
+*.html
+*.json
 
 # Chrome driver and browser installers
 *.deb
@@ -58,3 +64,8 @@ geckodriver
 *.bak
 *.swp
 *~
+
+# Credentials and sensitive data
+credentials.properties
+config.properties
+*.env
