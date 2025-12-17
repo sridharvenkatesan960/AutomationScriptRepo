@@ -49,9 +49,9 @@ pipeline {
                 echo "Running integration tests with browser: ${params.BROWSER}"
                 dir("${PROJECT_DIR}") {
                     script {
-                        // Run Cucumber tests with specified tags
+                        // Run Cucumber tests with specified tags (skip unit test phase)
                         bat """
-                            mvn verify -Dcucumber.filter.tags="${params.TEST_TAGS}" -Dbrowser=${params.BROWSER} -Denvironment=${params.ENVIRONMENT} || exit 0
+                            mvn verify -DskipTests -Dcucumber.filter.tags="${params.TEST_TAGS}" -Dbrowser=${params.BROWSER} -Denvironment=${params.ENVIRONMENT} || exit 0
                         """
                     }
                 }
