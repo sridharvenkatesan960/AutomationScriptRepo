@@ -1,0 +1,1061 @@
+================================================================================
+                    TEST AUTOMATION FRAMEWORK EXPLANATION
+                         Complete Study Guide
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. What is This Framework?
+2. How Tests Work - Simple Flow
+3. Directory Structure Explained
+4. Each Component Explained
+5. How Data Flows Through System
+6. Real Example - Login Test Execution
+7. Key Concepts Simply Explained
+8. How to Run Tests
+9. How to Add New Tests
+10. Important Files and Their Purpose
+
+
+================================================================================
+1. WHAT IS THIS FRAMEWORK?
+================================================================================
+
+This is a TEST AUTOMATION FRAMEWORK that automatically tests websites.
+
+Think of it like this:
+- Instead of manually clicking buttons on a website to test
+- We write instructions in plain English
+- Computer reads instructions and tests the website automatically
+- Works on multiple browsers (Chrome, Firefox, Edge)
+- Can test with different data (emails, passwords, etc.)
+
+TECHNOLOGIES USED:
+------------------
+- Cucumber: Write tests in plain English (BDD)
+- Selenium: Controls web browsers automatically
+- JUnit: Runs the tests
+- Maven: Manages project and dependencies
+- Java: Programming language
+- Apache POI: Reads Excel and CSV files
+
+
+================================================================================
+2. HOW TESTS WORK - SIMPLE FLOW
+================================================================================
+
+STEP 1: You write a test in plain English
+-----------------------------------------------
+Example (in Login.feature file):
+
+   Scenario: Login to website
+     Given User enters the Url
+     Then User logs in using test case "TC001" from CSV file
+     And Click on Submit button
+     Then Get the page title
+
+
+STEP 2: Computer reads the test
+-----------------------------------------------
+- It sees "Given User enters the Url"
+- Looks for matching Java code
+
+
+STEP 3: Java code executes
+-----------------------------------------------
+- Opens Chrome browser
+- Goes to website URL
+- Reads email/password from CSV file
+- Types email and password
+- Clicks submit button
+- Checks if login successful
+
+
+STEP 4: Results generated
+-----------------------------------------------
+- Creates HTML report showing pass/fail
+- Closes browser
+- Ready for next test
+
+
+================================================================================
+3. DIRECTORY STRUCTURE EXPLAINED
+================================================================================
+
+Naukri/
+│
+├── FeatureFiles/                    [Test scenarios in plain English]
+│   ├── Login.feature                - Login test scenarios
+│   └── LoginWithExcelData.feature   - Excel-based test scenarios
+│
+├── TestData/                        [Test data files]
+│   ├── LoginData.csv                - Contains emails, passwords
+│   └── LoginData.xlsx               - Excel version of test data
+│
+├── src/main/java/
+│   │
+│   ├── Utils/                       [Helper/Utility classes]
+│   │   ├── DriverManager.java       - Controls browser (open/close)
+│   │   ├── commonUtils.java         - Common functions (navigate, wait)
+│   │   ├── CSVReader.java           - Reads CSV files
+│   │   ├── ExcelReader.java         - Reads Excel files
+│   │   └── TestDataProvider.java    - Provides test data
+│   │
+│   └── webElements/                 [Web page elements]
+│       └── loginPageObjects.java    - Login page elements (buttons, fields)
+│
+├── src/test/java/
+│   │
+│   ├── Actions/                     [Business logic]
+│   │   └── loginActions.java        - Login-related actions
+│   │
+│   ├── StepDefenitions/             [Connects English to Java]
+│   │   ├── LoginStepDefenition.java        - Basic login steps
+│   │   ├── CSVDataDrivenLoginSteps.java    - CSV data-driven steps
+│   │   └── DataDrivenLoginSteps.java       - Excel data-driven steps
+│   │
+│   ├── Hooks/                       [Setup & Cleanup]
+│   │   └── TestHooks.java           - Opens/closes browser
+│   │
+│   └── Runner/                      [Test executors]
+│       ├── RunnerClass.java         - Default runner
+│       ├── ChromeRunner.java        - Runs tests in Chrome
+│       ├── FirefoxRunner.java       - Runs tests in Firefox
+│       └── EdgeRunner.java          - Runs tests in Edge
+│
+└── pom.xml                          [Project configuration]
+
+
+================================================================================
+4. EACH COMPONENT EXPLAINED
+================================================================================
+
+COMPONENT 1: FEATURE FILES (FeatureFiles/*.feature)
+----------------------------------------------------
+Purpose: Write test scenarios in plain English
+
+Example content of Login.feature:
+-----------------------------------
+Feature: Launch Naukri and search jobs - Data from CSV File
+
+  @login @csvData
+  Scenario: Login to Naukri Portal with TC001 from CSV
+    Given User enters the Url
+    Then User logs in using test case "TC001" from CSV file
+    And Click on Submit button
+    Then Get the page title
+
+What does this mean?
+- "Given" = Setup step (prepare for test)
+- "When/Then" = Action step (do something)
+- "And" = Additional step
+- "@login" = Tag to organize tests
+
+
+COMPONENT 2: TEST DATA (TestData/*.csv)
+----------------------------------------
+Purpose: Store test data separately from code
+
+Example content of LoginData.csv:
+----------------------------------
+TestCase,Email,Password,Description
+TC001,sridharsush@gmail.com,Gmail@96002,Valid login credentials
+TC002,invalid@test.com,WrongPass123,Invalid credentials test
+
+Why separate data?
+- Easy to add new test cases
+- No need to modify code
+- Non-programmers can add data
+
+
+COMPONENT 3: STEP DEFINITIONS (src/test/java/StepDefenitions/)
+---------------------------------------------------------------
+Purpose: Connect English steps to Java code
+
+Example from CSVDataDrivenLoginSteps.java:
+-------------------------------------------
+@Then("User logs in using test case {string} from CSV file")
+public void userLogsInUsingTestCaseFromCSV(String testCaseId) {
+    // Step 1: Get web page elements
+    loginPageObj = new loginPageObjects(DriverManager.getDriver());
+
+    // Step 2: Read data from CSV file
+    Map<String, String> credentials = dataProvider.getLoginCredentialsFromCSV(testCaseId);
+    String email = credentials.get("Email");
+    String password = credentials.get("Password");
+
+    // Step 3: Display what we're doing
+    System.out.println("Reading data from CSV file...");
+    System.out.println("Test Case: " + testCaseId);
+    System.out.println("Email: " + email);
+
+    // Step 4: Type email and password on webpage
+    loginPageObj.getUsernameField().sendKeys(email);
+    loginPageObj.getPasswordField().sendKeys(password);
+}
+
+What happens here?
+1. Method name matches the English step
+2. Reads test case ID (like "TC001")
+3. Gets email and password from CSV file
+4. Types them into webpage
+
+
+COMPONENT 4: PAGE OBJECTS (src/main/java/webElements/)
+-------------------------------------------------------
+Purpose: Store webpage element locations
+
+Example from loginPageObjects.java:
+------------------------------------
+public class loginPageObjects {
+    private WebDriver driver;
+
+    public loginPageObjects(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Find username field on webpage
+    public WebElement getUsernameField() {
+        return driver.findElement(By.id("usernameField"));
+    }
+
+    // Find password field on webpage
+    public WebElement getPasswordField() {
+        return driver.findElement(By.id("passwordField"));
+    }
+
+    // Find submit button on webpage
+    public WebElement getSubmitButton() {
+        return driver.findElement(By.xpath("//button[@type='submit']"));
+    }
+}
+
+Why do this?
+- If webpage changes, update only this file
+- Reuse across multiple tests
+- Clean and organized
+
+
+COMPONENT 5: ACTIONS (src/test/java/Actions/)
+----------------------------------------------
+Purpose: Business logic and reusable actions
+
+Example from loginActions.java:
+--------------------------------
+public class loginActions {
+    private loginPageObjects loginPageObj;
+
+    // Open browser
+    public WebDriver launchBrowser() {
+        WebDriver driver = commonUtils.launchBrowser();
+        loginPageObj = new loginPageObjects(driver);
+        return driver;
+    }
+
+    // Go to URL
+    public void navigateToUrl(String url) {
+        commonUtils.navigateToUrl(url);
+    }
+
+    // Type username
+    public void enterUsername(String username) {
+        loginPageObj.getUsernameField().sendKeys(username);
+    }
+
+    // Type password
+    public void enterPassword(String password) {
+        loginPageObj.getPasswordField().sendKeys(password);
+    }
+
+    // Click submit button
+    public void clickSubmitButton() {
+        loginPageObj.getSubmitButton().click();
+    }
+}
+
+What's the point?
+- Reusable actions
+- Separates what to do from how to do it
+- Easy to maintain
+
+
+COMPONENT 6: DRIVER MANAGER (src/main/java/Utils/DriverManager.java)
+---------------------------------------------------------------------
+Purpose: Manage browser lifecycle
+
+Key responsibilities:
+- Open browser (Chrome, Firefox, or Edge)
+- Close browser
+- Manage multiple browsers in parallel
+- Thread-safe (each test gets own browser)
+
+How it works:
+1. When test starts, creates browser instance
+2. Configures browser settings
+3. Provides browser to test
+4. When test ends, closes browser
+
+Why ThreadLocal?
+- Allows parallel test execution
+- Each thread has its own browser
+- No conflicts between tests
+
+
+COMPONENT 7: DATA READERS (src/main/java/Utils/)
+-------------------------------------------------
+
+CSVReader.java:
+- Reads CSV files
+- Converts to Java Map objects
+- Returns data to tests
+
+ExcelReader.java:
+- Reads Excel (.xlsx) files
+- Converts to Java Map objects
+- Returns data to tests
+
+TestDataProvider.java:
+- High-level API for data access
+- Automatically detects CSV or Excel
+- Provides simple methods to get data
+
+
+COMPONENT 8: TEST RUNNERS (src/test/java/Runner/)
+--------------------------------------------------
+Purpose: Configure and execute tests
+
+ChromeRunner.java example:
+--------------------------
+@RunWith(Cucumber.class)
+@CucumberOptions(
+    features = "FeatureFiles",              // Where test scenarios are
+    glue = {"StepDefenitions", "Hooks"},    // Where Java code is
+    plugin = {"pretty", "html:target/cucumber-reports-chrome.html"},
+    tags = "@login",                         // Run tests with @login tag
+    dryRun = false                          // Actually execute tests
+)
+public class ChromeRunner {
+    @BeforeClass
+    public static void setup() {
+        System.setProperty("browser", "chrome");  // Use Chrome browser
+    }
+}
+
+What does each runner do?
+- ChromeRunner: Runs tests in Chrome
+- FirefoxRunner: Runs tests in Firefox
+- EdgeRunner: Runs tests in Edge
+
+
+COMPONENT 9: HOOKS (src/test/java/Hooks/TestHooks.java)
+--------------------------------------------------------
+Purpose: Setup and cleanup before/after tests
+
+@Before Hook (runs before each test):
+- Logs scenario name
+- Can load test data
+- Prepare environment
+
+@After Hook (runs after each test):
+- Closes browser
+- Logs test result (pass/fail)
+- Cleanup
+
+Why hooks?
+- Automatic setup/cleanup
+- No need to remember in each test
+- Always runs, even if test fails
+
+
+================================================================================
+5. HOW DATA FLOWS THROUGH SYSTEM
+================================================================================
+
+EXAMPLE: User wants to test login with different credentials
+
+FLOW DIAGRAM:
+-------------
+
+[1] TEST DATA (LoginData.csv)
+    TestCase,Email,Password
+    TC001,user@test.com,Pass123
+              ↓
+              ↓
+[2] RUNNER (ChromeRunner.java)
+    - Starts test execution
+    - Sets browser to Chrome
+              ↓
+              ↓
+[3] FEATURE FILE (Login.feature)
+    Scenario: Login with TC001
+      Then User logs in using test case "TC001" from CSV file
+              ↓
+              ↓
+[4] STEP DEFINITION (CSVDataDrivenLoginSteps.java)
+    @Then("User logs in using test case {string} from CSV file")
+    - Receives "TC001" as parameter
+              ↓
+              ↓
+[5] DATA PROVIDER (TestDataProvider.java)
+    - Gets login credentials for TC001
+              ↓
+              ↓
+[6] CSV READER (CSVReader.java)
+    - Reads LoginData.csv
+    - Finds row with TC001
+    - Returns {Email: "user@test.com", Password: "Pass123"}
+              ↓
+              ↓
+[7] DRIVER MANAGER (DriverManager.java)
+    - Opens Chrome browser
+    - Returns browser instance
+              ↓
+              ↓
+[8] PAGE OBJECTS (loginPageObjects.java)
+    - Finds username field on webpage
+    - Finds password field on webpage
+              ↓
+              ↓
+[9] ACTIONS (loginActions.java)
+    - Types "user@test.com" in username field
+    - Types "Pass123" in password field
+    - Clicks submit button
+              ↓
+              ↓
+[10] BROWSER
+     - Performs actions on actual website
+     - Login attempt happens
+              ↓
+              ↓
+[11] VERIFICATION
+     - Checks if login successful
+     - Verifies expected results
+              ↓
+              ↓
+[12] HOOKS (@After)
+     - Closes browser
+     - Logs result
+              ↓
+              ↓
+[13] REPORT GENERATION
+     - Creates HTML report
+     - Shows test passed/failed
+     - Saves to target/cucumber-reports-chrome.html
+
+
+================================================================================
+6. REAL EXAMPLE - LOGIN TEST EXECUTION
+================================================================================
+
+Let's trace a complete test execution step by step:
+
+TEST COMMAND:
+-------------
+mvn test -Dtest=ChromeRunner
+
+
+STEP-BY-STEP EXECUTION:
+------------------------
+
+STEP 1: Maven Compilation
+--------------------------
+- Compiles all Java files
+- Checks for errors
+- Prepares test execution
+
+STEP 2: Runner Starts
+----------------------
+File: ChromeRunner.java
+Action: Sets browser = "chrome"
+Output: "Running tests in Chrome browser"
+
+STEP 3: Read Feature File
+--------------------------
+File: Login.feature
+Reads:
+  @login @csvData
+  Scenario: Login to Naukri Portal with TC001 from CSV
+    Given User enters the Url
+    Then User logs in using test case "TC001" from CSV file
+    And Click on Submit button
+    Then Get the page title
+
+STEP 4: Execute @Before Hook
+-----------------------------
+File: TestHooks.java
+Method: beforeScenario()
+Output: "Starting Scenario: Login to Naukri Portal with TC001 from CSV"
+Output: "Tags: [@login, @csvData]"
+
+STEP 5: Execute First Step - "Given User enters the Url"
+---------------------------------------------------------
+Step Definition: LoginStepDefenition.user_enters_the_url()
+    ↓
+Action: loginAction.launchBrowser()
+    ↓
+Action: commonUtils.launchBrowser()
+    ↓
+Driver Manager: DriverManager.getDriver()
+    ↓
+Browser Action: WebDriverManager.chromedriver().setup()
+    ↓
+Browser Action: new ChromeDriver()
+    ↓
+Browser Action: driver.get("https://www.naukri.com/nlogin/login")
+    ↓
+Output: "WebDriver initialized successfully with chrome browser"
+Output: "Navigated to: https://www.naukri.com/nlogin/login"
+Result: Chrome browser opens and shows login page
+
+STEP 6: Execute Second Step - "Then User logs in using test case TC001"
+------------------------------------------------------------------------
+Step Definition: CSVDataDrivenLoginSteps.userLogsInUsingTestCaseFromCSV("TC001")
+    ↓
+Initialize: loginPageObj = new loginPageObjects(DriverManager.getDriver())
+    ↓
+Data Read: dataProvider.getLoginCredentialsFromCSV("TC001")
+    ↓
+CSV Reader: csvReader.loadCSV()
+    ↓
+CSV Read: Opens TestData/LoginData.csv
+CSV Parse:
+    Row 1: TestCase,Email,Password,Description (header)
+    Row 2: TC001,sridharsush@gmail.com,Gmail@96002,Valid login credentials
+    ↓
+Match Found: TestCase = "TC001"
+    ↓
+Data Returned: {
+    TestCase: "TC001",
+    Email: "sridharsush@gmail.com",
+    Password: "Gmail@96002",
+    Description: "Valid login credentials"
+}
+    ↓
+Output: "Reading data from CSV file..."
+Output: "Test Case: TC001"
+Output: "Description: Valid login credentials"
+Output: "Email: sridharsush@gmail.com"
+    ↓
+Page Object: loginPageObj.getUsernameField()
+    ↓
+Element Find: driver.findElement(By.id("usernameField"))
+    ↓
+Action: element.sendKeys("sridharsush@gmail.com")
+    ↓
+Browser Action: Types "sridharsush@gmail.com" in username field
+    ↓
+Page Object: loginPageObj.getPasswordField()
+    ↓
+Element Find: driver.findElement(By.id("passwordField"))
+    ↓
+Action: element.sendKeys("Gmail@96002")
+    ↓
+Browser Action: Types "Gmail@96002" in password field
+Result: Email and password filled on webpage
+
+STEP 7: Execute Third Step - "And Click on Submit button"
+----------------------------------------------------------
+Step Definition: LoginStepDefenition.click_on_submit_button()
+    ↓
+Action: loginAction.clickSubmitButton()
+    ↓
+Page Object: loginPageObj.getSubmitButton()
+    ↓
+Element Find: driver.findElement(By.xpath("//button[@type='submit']"))
+    ↓
+Action: element.click()
+    ↓
+Browser Action: Clicks submit button
+    ↓
+Website Action: Processes login request
+Result: Page navigates to homepage or shows error
+
+STEP 8: Execute Fourth Step - "Then Get the page title"
+--------------------------------------------------------
+Step Definition: LoginStepDefenition.get_the_page_title()
+    ↓
+Action: loginAction.getPageTitle()
+    ↓
+Utility: commonUtils.getPageTitle()
+    ↓
+Browser: driver.getTitle()
+    ↓
+Returns: "Jobseeker's Login: Search the Best Jobs available in India & Abroad - Naukri.com"
+    ↓
+Output: "Page Title: Jobseeker's Login: Search the Best Jobs available in India & Abroad - Naukri.com"
+Result: Test step passed
+
+STEP 9: Execute @After Hook
+----------------------------
+File: TestHooks.java
+Method: afterScenario()
+    ↓
+Output: "Finished Scenario: Login to Naukri Portal with TC001 from CSV"
+Output: "Status: PASSED"
+    ↓
+Cleanup: DriverManager.quitDriver()
+    ↓
+Browser Action: driver.quit()
+    ↓
+Output: "WebDriver quit successfully"
+Output: "Browser closed successfully"
+Result: Chrome browser closes
+
+STEP 10: Report Generation
+---------------------------
+Cucumber Plugin: Generates HTML report
+    ↓
+File Created: target/cucumber-reports-chrome.html
+File Created: target/cucumber-chrome.json
+    ↓
+Report Contains:
+    - Feature name
+    - Scenario name
+    - Each step with pass/fail
+    - Screenshots (if configured)
+    - Execution time
+    - Test status
+
+STEP 11: Maven Summary
+----------------------
+Output:
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time: 37.601 s
+
+
+================================================================================
+7. KEY CONCEPTS SIMPLY EXPLAINED
+================================================================================
+
+CONCEPT 1: BDD (Behavior-Driven Development)
+---------------------------------------------
+What it is:
+- Writing tests in plain English
+- Anyone can read and understand
+- Tests serve as documentation
+
+Example:
+Instead of:
+    assert(loginPage.usernameField.text == "user@test.com")
+
+We write:
+    Given User is on login page
+    When User enters "user@test.com"
+    Then Username field should contain "user@test.com"
+
+Benefits:
+- Business people understand tests
+- Less technical knowledge needed
+- Clear requirements
+
+
+CONCEPT 2: Data-Driven Testing
+-------------------------------
+What it is:
+- Separating test data from test logic
+- Same test runs with different data
+- Data stored in CSV or Excel
+
+Example:
+One test, multiple data sets:
+
+Test Code (same):
+    Log in with email and password
+
+Test Data (different):
+    TC001: user1@test.com, Pass123
+    TC002: user2@test.com, Pass456
+    TC003: user3@test.com, Pass789
+
+Benefits:
+- Easy to add test cases
+- No code changes for new data
+- Non-programmers can manage data
+
+
+CONCEPT 3: Page Object Model (POM)
+-----------------------------------
+What it is:
+- Organizing element locators in classes
+- One class per webpage
+- Reusable methods for actions
+
+Without POM:
+    driver.findElement(By.id("username")).sendKeys("test");
+    driver.findElement(By.id("username")).clear();
+    driver.findElement(By.id("username")).sendKeys("newuser");
+    (Repeated in multiple tests)
+
+With POM:
+    loginPage.enterUsername("test");
+    loginPage.clearUsername();
+    loginPage.enterUsername("newuser");
+    (Reusable everywhere)
+
+Benefits:
+- Single place for element locators
+- Easy maintenance
+- Reusable code
+
+
+CONCEPT 4: Parallel Execution
+------------------------------
+What it is:
+- Running multiple tests simultaneously
+- Each test in separate browser/thread
+- Faster overall execution
+
+Sequential:
+    Chrome test → 15 seconds
+    Firefox test → 15 seconds
+    Edge test → 15 seconds
+    Total: 45 seconds
+
+Parallel:
+    Chrome test  ┐
+    Firefox test ├─→ All run together → 15 seconds
+    Edge test    ┘
+    Total: 15 seconds (60% faster!)
+
+How it works:
+- Each runner class runs in separate JVM
+- ThreadLocal ensures no conflicts
+- Maven Surefire manages parallel execution
+
+
+CONCEPT 5: Cucumber Tags
+-------------------------
+What they are:
+- Labels to organize and filter tests
+- Start with @
+- Can have multiple tags
+
+Example:
+    @login @smoke @high-priority
+    Scenario: Quick login test
+
+    @search @regression @low-priority
+    Scenario: Advanced search test
+
+Usage:
+    mvn test -Dcucumber.filter.tags="@smoke"        (Run smoke tests only)
+    mvn test -Dcucumber.filter.tags="@login and @high-priority"  (AND condition)
+    mvn test -Dcucumber.filter.tags="@smoke or @regression"      (OR condition)
+
+
+CONCEPT 6: Hooks
+----------------
+What they are:
+- Code that runs before/after tests
+- Automatic setup and cleanup
+- Always executes
+
+Types:
+    @Before     - Runs before each scenario
+    @After      - Runs after each scenario
+    @BeforeAll  - Runs once before all tests
+    @AfterAll   - Runs once after all tests
+
+Common uses:
+    @Before: Open browser, login, prepare data
+    @After:  Close browser, cleanup data, save logs
+
+
+CONCEPT 7: ThreadLocal
+----------------------
+What it is:
+- Java mechanism for thread-specific data
+- Each thread has its own copy
+- No sharing between threads
+
+Why needed:
+    Without ThreadLocal:
+        Thread 1: Opens Chrome ─┐
+        Thread 2: Opens Firefox ┼─→ Both use same driver → Conflict!
+        Thread 3: Opens Edge ───┘
+
+    With ThreadLocal:
+        Thread 1: Opens Chrome  → Own driver instance
+        Thread 2: Opens Firefox → Own driver instance
+        Thread 3: Opens Edge    → Own driver instance
+        No conflicts!
+
+
+================================================================================
+8. HOW TO RUN TESTS
+================================================================================
+
+PREREQUISITE:
+-------------
+1. Java 17+ installed
+   Check: java -version
+
+2. Maven installed
+   Check: mvn -version
+
+3. Browser installed (Chrome recommended)
+
+
+BASIC COMMANDS:
+---------------
+
+1. Run all tests in Chrome:
+   mvn test -Dtest=ChromeRunner
+
+2. Run all tests in all browsers (parallel):
+   mvn clean test
+
+3. Run specific browser:
+   mvn test -Dtest=FirefoxRunner
+
+4. Run with specific tag:
+   mvn test -Dtest=ChromeRunner -Dcucumber.filter.tags="@login"
+
+5. Clean and run:
+   mvn clean test
+
+6. Skip tests (just compile):
+   mvn compile
+
+
+VIEW REPORTS:
+-------------
+After tests run, open:
+   target/cucumber-reports-chrome.html  (in web browser)
+
+Or command line:
+   Linux/Mac: open target/cucumber-reports-chrome.html
+   Windows: start target/cucumber-reports-chrome.html
+
+
+TROUBLESHOOTING:
+----------------
+If tests fail to run:
+1. mvn clean install         (Clean build)
+2. Check Java version        (Should be 17+)
+3. Check browser installed   (Chrome, Firefox, Edge)
+4. Check CSV file exists     (TestData/LoginData.csv)
+
+
+================================================================================
+9. HOW TO ADD NEW TESTS
+================================================================================
+
+SCENARIO 1: Add New Test Case (Same Test, Different Data)
+----------------------------------------------------------
+
+Step 1: Open TestData/LoginData.csv
+
+Step 2: Add new row:
+TestCase,Email,Password,Description
+TC001,sridharsush@gmail.com,Gmail@96002,Valid login credentials
+TC002,invalid@test.com,WrongPass123,Invalid credentials test
+TC003,newuser@test.com,NewPass123,NEW TEST CASE        ← Add this
+
+Step 3: Open FeatureFiles/Login.feature
+
+Step 4: Add new scenario:
+  @login @csvData
+  Scenario: Login to Naukri Portal with TC003 from CSV
+    Given User enters the Url
+    Then User logs in using test case "TC003" from CSV file
+    And Click on Submit button
+    Then Get the page title
+
+Step 5: Run test:
+mvn test -Dtest=ChromeRunner
+
+DONE! No Java code changes needed!
+
+
+SCENARIO 2: Add Completely New Test (New Feature)
+--------------------------------------------------
+
+Example: Add search functionality test
+
+Step 1: Create search test data
+File: TestData/SearchData.csv
+TestCase,Keyword,Location,Experience
+SC001,Java Developer,Bangalore,5
+SC002,Python Developer,Mumbai,3
+
+Step 2: Create page object
+File: src/main/java/webElements/searchPageObjects.java
+
+public class searchPageObjects {
+    private WebDriver driver;
+
+    public searchPageObjects(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public WebElement getSearchKeywordField() {
+        return driver.findElement(By.id("searchKeyword"));
+    }
+
+    public WebElement getLocationField() {
+        return driver.findElement(By.id("location"));
+    }
+
+    public WebElement getSearchButton() {
+        return driver.findElement(By.xpath("//button[text()='Search']"));
+    }
+}
+
+Step 3: Create actions
+File: src/test/java/Actions/searchActions.java
+
+public class searchActions {
+    private searchPageObjects searchPageObj;
+
+    public void performSearch(String keyword, String location) {
+        searchPageObj.getSearchKeywordField().sendKeys(keyword);
+        searchPageObj.getLocationField().sendKeys(location);
+        searchPageObj.getSearchButton().click();
+    }
+}
+
+Step 4: Create step definitions
+File: src/test/java/StepDefenitions/SearchStepDefinitions.java
+
+public class SearchStepDefinitions {
+    private searchActions searchAction = new searchActions();
+
+    @When("User searches for {string} in {string}")
+    public void userSearchesFor(String keyword, String location) {
+        searchAction.performSearch(keyword, location);
+    }
+
+    @Then("User should see search results")
+    public void userShouldSeeResults() {
+        // Verify results displayed
+    }
+}
+
+Step 5: Create feature file
+File: FeatureFiles/Search.feature
+
+Feature: Job Search Functionality
+
+  @search @smoke
+  Scenario: Search for Java jobs in Bangalore
+    Given User enters the Url
+    When User searches for "Java Developer" in "Bangalore"
+    Then User should see search results
+
+Step 6: Run test:
+mvn test -Dtest=ChromeRunner -Dcucumber.filter.tags="@search"
+
+
+================================================================================
+10. IMPORTANT FILES AND THEIR PURPOSE
+================================================================================
+
+MUST UNDERSTAND FILES (Top Priority):
+--------------------------------------
+
+1. Login.feature (FeatureFiles/Login.feature)
+   Purpose: Test scenarios in plain English
+   Read this to: Understand what tests do
+   Modify this to: Add/change test scenarios
+
+2. LoginData.csv (TestData/LoginData.csv)
+   Purpose: Test data storage
+   Read this to: See test data format
+   Modify this to: Add new test cases
+
+3. CSVDataDrivenLoginSteps.java (src/test/java/StepDefenitions/)
+   Purpose: Connect English steps to Java code
+   Read this to: Understand step implementation
+   Modify this to: Change step behavior
+
+4. DriverManager.java (src/main/java/Utils/)
+   Purpose: Browser management
+   Read this to: Understand browser control
+   Modify this to: Add new browser support
+
+5. ChromeRunner.java (src/test/java/Runner/)
+   Purpose: Execute tests in Chrome
+   Read this to: Understand test execution
+   Modify this to: Change test configuration
+
+
+GOOD TO KNOW FILES:
+-------------------
+
+6. loginPageObjects.java (src/main/java/webElements/)
+   Purpose: Page element locators
+   Modify when: Webpage structure changes
+
+7. loginActions.java (src/test/java/Actions/)
+   Purpose: Reusable actions
+   Modify when: Need new actions
+
+8. TestHooks.java (src/test/java/Hooks/)
+   Purpose: Setup and cleanup
+   Modify when: Need different setup
+
+9. pom.xml (project root)
+   Purpose: Maven configuration
+   Modify when: Need new dependencies or plugins
+
+
+ADVANCED FILES:
+---------------
+
+10. commonUtils.java (src/main/java/Utils/)
+    Purpose: Common utility methods
+    Modify when: Need new utility functions
+
+11. TestDataProvider.java (src/main/java/Utils/)
+    Purpose: Data access layer
+    Modify when: Change data source
+
+12. CSVReader.java (src/main/java/Utils/)
+    Purpose: CSV file reading
+    Modify when: Change CSV parsing logic
+
+
+================================================================================
+                            END OF GUIDE
+================================================================================
+
+QUICK RECAP:
+------------
+1. Framework tests websites automatically
+2. Tests written in plain English (BDD)
+3. Test data in CSV/Excel files
+4. Supports multiple browsers
+5. Can run tests in parallel
+6. Well-organized, maintainable code
+7. Easy to extend and add new tests
+
+KEY SKILLS LEARNED:
+-------------------
+✓ Understanding test automation framework
+✓ BDD/Cucumber concepts
+✓ Selenium WebDriver basics
+✓ Data-driven testing
+✓ Page Object Model
+✓ Parallel execution
+✓ Framework architecture
+
+NEXT STEPS:
+-----------
+1. Read Login.feature to see test scenarios
+2. Look at LoginData.csv to see test data
+3. Trace one test execution step-by-step
+4. Try adding a new test case
+5. Run tests and view reports
+6. Explore other components
+
+REMEMBER:
+---------
+- Start simple, understand basics first
+- Trace through one complete test
+- Experiment with adding new tests
+- Ask questions when stuck
+- Practice makes perfect!
+
+Good luck with your test automation journey! 🚀
