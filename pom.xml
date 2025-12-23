@@ -135,6 +135,19 @@
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.3.0</version>
+					<configuration>
+						<!-- Enable parallel execution -->
+						<parallel>classes</parallel>
+						<threadCount>3</threadCount>
+						<perCoreThreadCount>false</perCoreThreadCount>
+						<forkCount>3</forkCount>
+						<reuseForks>false</reuseForks>
+						<includes>
+							<include>**/ChromeRunner.java</include>
+							<include>**/FirefoxRunner.java</include>
+							<include>**/EdgeRunner.java</include>
+						</includes>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>

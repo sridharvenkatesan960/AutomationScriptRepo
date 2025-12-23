@@ -1,0 +1,3 @@
+TestCase,Email,Password,Description
+TC001,sridharsush@gmail.com,Gmail@96002,Valid login credentials
+TC002,invalid@test.com,WrongPass123,Invalid credentials test

@@ -1,11 +1,16 @@
-Feature: Launch Naukri and search jobs
-Scenario: Login to naukri
+Feature: Launch Naukri and search jobs - Data from CSV File
 
-  @login
-  Scenario: Login to Naukri Portal
+  @login @csvData
+  Scenario: Login to Naukri Portal with TC001 from CSV
     Given User enters the Url
-    Then User Enters 'sridharsush@gmail.com' and 'Gmail@96002'
+    Then User logs in using test case "TC001" from CSV file
     And Click on Submit button
     Then Get the page title
 
-	
+  @login @csvData
+  Scenario: Login to Naukri Portal with TC002 from CSV
+    Given User enters the Url
+    Then User logs in using test case "TC002" from CSV file
+    And Click on Submit button
+    Then Get the page title
+    
