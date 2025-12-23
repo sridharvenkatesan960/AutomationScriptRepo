@@ -14,7 +14,7 @@ pipeline {
 
     environment {
         MAVEN_OPTS = '-Xmx1024m'
-        PROJECT_DIR = 'Naukri'
+        PROJECT_DIR = '.'  // Changed from 'Naukri' to '.' (current directory)
     }
 
     stages {
