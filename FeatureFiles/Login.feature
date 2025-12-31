@@ -1,16 +1,19 @@
-Feature: Launch Naukri and search jobs - Data from CSV File
+Feature: Launch Naukri and search jobs - Data from xlsx File
 
-  @login @csvData
-  Scenario: Login to Naukri Portal with TC001 from CSV
-    Given User enters the Url
-    Then User logs in using test case "TC001" from CSV file
-    And Click on Submit button
-    Then Get the page title
+Background: Launch Browser
+Given User enters the "URL" from xlsx file Row 1
 
-  @login @csvData
-  Scenario: Login to Naukri Portal with TC002 from CSV
-    Given User enters the Url
-    Then User logs in using test case "TC002" from CSV file
-    And Click on Submit button
-    Then Get the page title
+
+  @login @xlsxData @test
+  Scenario: Login to Naukri Portal from xlsx credentials    
+    Then User logs in using "UserName" and "Password" from xlsx file Row 1
+    Then Clear the username and password field
+    Then User logs in using "UserName" and "Password" from xlsx file Row 2
+    
+    
+    
+  @search @test
+  Scenario: Search job
+  	Then search for jobs based on the "keyWord" and "Exp" and "Location"
+  	
     

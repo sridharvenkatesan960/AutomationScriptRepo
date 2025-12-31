@@ -15,19 +15,10 @@ public class ExcelReader {
     private Workbook workbook;
     private Sheet sheet;
 
-    /**
-     * Constructor to initialize the Excel file path
-     * @param filePath Path to the Excel file
-     */
     public ExcelReader(String filePath) {
         this.filePath = filePath;
     }
 
-    /**
-     * Load the Excel file and get the specified sheet
-     * @param sheetName Name of the sheet to read
-     * @throws IOException If file cannot be read
-     */
     public void loadSheet(String sheetName) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(filePath);
         workbook = new XSSFWorkbook(fileInputStream);
@@ -37,10 +28,6 @@ public class ExcelReader {
         }
     }
 
-    /**
-     * Read all data from the current sheet
-     * @return List of maps where each map represents a row with column headers as keys
-     */
     public List<Map<String, String>> getAllData() {
         List<Map<String, String>> data = new ArrayList<>();
 

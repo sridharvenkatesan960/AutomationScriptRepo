@@ -10,7 +10,7 @@ import io.cucumber.junit.CucumberOptions;
     glue = {"StepDefenitions", "Hooks"},
     plugin = {"pretty", "html:target/cucumber-reports.html", "json:target/cucumber.json"},
     monochrome = true,
-    tags = "@login",
+    tags = "@test",
     dryRun = false
 )
 public class RunnerClass {

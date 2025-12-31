@@ -5,7 +5,7 @@ import io.cucumber.testng.CucumberOptions;
 
 @CucumberOptions(
     features = "FeatureFiles",
-    glue = "StepDefenitions",
+    glue = {"StepDefenitions", "Hooks"},
     plugin = {"pretty", "html:target/cucumber-reports.html", "json:target/cucumber.json"},
     monochrome = true,
     tags = "@login"

@@ -1,6 +1,6 @@
 package Utils;
-
 import org.openqa.selenium.WebDriver;
+
 
 public class commonUtils {
 
@@ -21,9 +21,5 @@ public class commonUtils {
 
     public static void closeBrowser() {
         DriverManager.quitDriver();
-    }
-
-    public static String getCurrentUrl() {
-        return DriverManager.getDriver().getCurrentUrl();
     }
 }
